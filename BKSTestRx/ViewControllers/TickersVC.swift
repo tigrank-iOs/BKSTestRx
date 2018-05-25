@@ -16,6 +16,7 @@ class TickersVC: UIViewController, UITableViewDelegate {
 	private let cellIdentifier = "tickerCell"
 	private let tickerRequest = TickerRequest()
 	private let disposeBag = DisposeBag()
+	private let isRunning = Variable(false)
 	
 	// MARK: - View Controller Life Cycles
 	override func viewDidLoad() {
@@ -31,7 +32,11 @@ class TickersVC: UIViewController, UITableViewDelegate {
 		tableView.allowsSelection = false
 		tableView.rowHeight = 88
 		
-		Observable<Int>.timer(0, period: 5, scheduler: MainScheduler.instance)
+		isRunning.asObservable()
+			.debug("isRunning")
+			.flatMapLatest { isRunning in
+				isRunning ? Observable<Int>.timer(0, period: 5, scheduler: MainScheduler.instance) : .empty()
+			}
 			.asObservable()
 			.flatMap { _ -> Observable<[TickerModel]> in
 				return self.tickerRequest.sendRequest()
@@ -42,6 +47,17 @@ class TickersVC: UIViewController, UITableViewDelegate {
 			}
 			.disposed(by: disposeBag)
 		
+		NotificationCenter.default.addObserver(self, selector: #selector(changedOrientation), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+	}
+	
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
+		self.isRunning.value = true
+	}
+	
+	override func viewWillDisappear(_ animated: Bool) {
+		super.viewWillDisappear(animated)
+		self.isRunning.value = false
 	}
 	
 	// MARK: - Private Functions
@@ -54,6 +70,10 @@ class TickersVC: UIViewController, UITableViewDelegate {
 									 tableView.rightAnchor.constraint(equalTo: view.layoutMarginsGuide.rightAnchor),
 									 tableView.leftAnchor.constraint(equalTo: view.layoutMarginsGuide.leftAnchor)])
 		tableView.contentInset.bottom = view.layoutMargins.bottom
+	}
+	
+	@objc func changedOrientation(_ notification: Notification) {
+		tableView.visibleCells.forEach { ($0 as! TickerCell).setupFrames() }
 	}
 }
 

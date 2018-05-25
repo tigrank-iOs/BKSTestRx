@@ -12,6 +12,7 @@ class TickerCell: UITableViewCell {
 	
 	// MARK: - Variables
 	private var ticker: TickerModel?
+	private var rowHeight: CGFloat = 88
 	
 	private let tickerNameLabel = UILabel()
 	private let lastTitleLabel = UILabel()
@@ -21,18 +22,12 @@ class TickerCell: UITableViewCell {
 	private let highestTitleLabel = UILabel()
 	private let highestLabel = UILabel()
 	
-	private let mainStackView = UIStackView()
-	private let indicatorsStackView = UIStackView()
-	private let lastStackView = UIStackView()
-	private let changeStackView = UIStackView()
-	private let highestStackView = UIStackView()
-	
 	// MARK: - Functions
 	func setupCellWithTicker(_ ticker: TickerModel) {
 		self.ticker = ticker
+		[tickerNameLabel, lastTitleLabel, lastLabel, changeTitleLabel, changeLabel, highestTitleLabel, highestLabel].forEach { $0.translatesAutoresizingMaskIntoConstraints = false; contentView.addSubview($0) }
 		setupLabels()
-		setupStackViews()
-		setupLayout()
+		setupFrames()
 	}
 	
 	// MARK: - Private Functions
@@ -75,60 +70,69 @@ class TickerCell: UITableViewCell {
 		highestLabel.textAlignment = .center
 	}
 	
-	private func setupStackViews() {
-		let requiredWidth = self.contentView.bounds.size.width / 3
-		
-		lastStackView.addArrangedSubview(lastTitleLabel)
-		lastStackView.addArrangedSubview(lastLabel)
-		lastStackView.axis = .vertical
-		lastStackView.alignment = .fill
-		lastStackView.distribution = .fillEqually
-		lastStackView.spacing = 2
-		lastStackView.bounds.size.width = requiredWidth
-		
-		changeStackView.addArrangedSubview(changeTitleLabel)
-		changeStackView.addArrangedSubview(changeLabel)
-		changeStackView.axis = .vertical
-		changeStackView.alignment = .fill
-		changeStackView.distribution = .fillEqually
-		changeStackView.spacing = 2
-		changeStackView.bounds.size.width = requiredWidth
-		
-		highestStackView.addArrangedSubview(highestTitleLabel)
-		highestStackView.addArrangedSubview(highestLabel)
-		highestStackView.axis = .vertical
-		highestStackView.alignment = .fill
-		highestStackView.distribution = .fillEqually
-		highestStackView.spacing = 2
-		highestStackView.bounds.size.width = requiredWidth
-		
-		indicatorsStackView.addArrangedSubview(lastStackView)
-		indicatorsStackView.addArrangedSubview(changeStackView)
-		indicatorsStackView.addArrangedSubview(highestStackView)
-		indicatorsStackView.axis = .horizontal
-		indicatorsStackView.alignment = .fill
-		indicatorsStackView.distribution = .fillEqually
-		indicatorsStackView.spacing = 0
-		indicatorsStackView.bounds.size.width = self.contentView.bounds.width
-		
-		mainStackView.addArrangedSubview(tickerNameLabel)
-		mainStackView.addArrangedSubview(indicatorsStackView)
-		mainStackView.axis = .vertical
-		mainStackView.alignment = .fill
-		mainStackView.distribution = .fillEqually
-		mainStackView.spacing = 0
-		mainStackView.bounds.size.width = self.contentView.bounds.width
+	func setupFrames() {
+		setTicketNameLabelFrame()
+		setLastTitleLabelFrame()
+		setLastLabelFrame()
+		setChangeTitleLabelFrame()
+		setChangeLabelFrame()
+		setHighestTitleLabelFrame()
+		setHighestLabelFrame()
 	}
 	
-	private func setupLayout() {
-		self.contentView.addSubview(mainStackView)
-		mainStackView.translatesAutoresizingMaskIntoConstraints = false
-		mainStackView.topAnchor.constraint(equalTo: self.contentView.topAnchor)
-		mainStackView.rightAnchor.constraint(equalTo: self.contentView.rightAnchor)
-		mainStackView.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor)
-		mainStackView.leftAnchor.constraint(equalTo: self.contentView.leftAnchor)
+	private func setTicketNameLabelFrame() {
+		let labelSize = CGSize(width: contentView.bounds.width, height: rowHeight / 2)
+		let labelX = 0
+		let labelY = 0
+		let labelOrigin = CGPoint(x: labelX, y: labelY)
+		tickerNameLabel.frame = CGRect(origin: labelOrigin, size: labelSize)
 	}
 	
+	private func setLastTitleLabelFrame() {
+		let labelSize = CGSize(width: contentView.bounds.width / 3, height: rowHeight / 4)
+		let labelX = CGFloat(0)
+		let labelY = rowHeight / 2
+		let labelOrigin = CGPoint(x: labelX, y: labelY)
+		lastTitleLabel.frame = CGRect(origin: labelOrigin, size: labelSize)
+	}
 	
-
+	private func setLastLabelFrame() {
+		let labelSize = CGSize(width: contentView.bounds.width / 3, height: rowHeight / 4)
+		let labelX = CGFloat(0)
+		let labelY = rowHeight / 2 + rowHeight / 4
+		let labelOrigin = CGPoint(x: labelX, y: labelY)
+		lastLabel.frame = CGRect(origin: labelOrigin, size: labelSize)
+	}
+	
+	private func setChangeTitleLabelFrame() {
+		let labelSize = CGSize(width: contentView.bounds.width / 3, height: rowHeight / 4)
+		let labelX = contentView.bounds.width / 3
+		let labelY = rowHeight / 2
+		let labelOrigin = CGPoint(x: labelX, y: labelY)
+		changeTitleLabel.frame = CGRect(origin: labelOrigin, size: labelSize)
+	}
+	
+	private func setChangeLabelFrame() {
+		let labelSize = CGSize(width: contentView.bounds.width / 3, height: rowHeight / 4)
+		let labelX = contentView.bounds.width / 3
+		let labelY = rowHeight / 2 + rowHeight / 4
+		let labelOrigin = CGPoint(x: labelX, y: labelY)
+		changeLabel.frame = CGRect(origin: labelOrigin, size: labelSize)
+	}
+	
+	private func setHighestTitleLabelFrame() {
+		let labelSize = CGSize(width: contentView.bounds.width / 3, height: rowHeight / 4)
+		let labelX = contentView.bounds.width / 3 * 2
+		let labelY = rowHeight / 2
+		let labelOrigin = CGPoint(x: labelX, y: labelY)
+		highestTitleLabel.frame = CGRect(origin: labelOrigin, size: labelSize)
+	}
+	
+	private func setHighestLabelFrame() {
+		let labelSize = CGSize(width: contentView.bounds.width / 3, height: rowHeight / 4)
+		let labelX = contentView.bounds.width / 3 * 2
+		let labelY = rowHeight / 2 + rowHeight / 4
+		let labelOrigin = CGPoint(x: labelX, y: labelY)
+		highestLabel.frame = CGRect(origin: labelOrigin, size: labelSize)
+	}
 }

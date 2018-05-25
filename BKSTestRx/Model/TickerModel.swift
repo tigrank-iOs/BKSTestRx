@@ -23,7 +23,7 @@ struct TickerModel {
 	}
 	
 	func getPercentChange() -> String {
-		let percent = Double(Int(change * 100)) / 100
+		let percent = Double(Int(change * 10000)) / 10000
 		return "\(percent.description)%"
 	}
 	
