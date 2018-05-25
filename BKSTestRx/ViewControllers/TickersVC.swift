@@ -17,6 +17,7 @@ class TickersVC: UIViewController, UITableViewDelegate {
 	private let tickerRequest = TickerRequest()
 	private let disposeBag = DisposeBag()
 	private let isRunning = Variable(false)
+	private var activityIndicatorView = UIView()
 	
 	// MARK: - View Controller Life Cycles
 	override func viewDidLoad() {
@@ -32,6 +33,8 @@ class TickersVC: UIViewController, UITableViewDelegate {
 		tableView.allowsSelection = false
 		tableView.rowHeight = 74
 		
+		setupIndicator()
+		
 		isRunning.asObservable()
 			.flatMapLatest { isRunning in
 				isRunning ? Observable<Int>.timer(0, period: 5, scheduler: MainScheduler.instance) : .empty()
@@ -40,7 +43,8 @@ class TickersVC: UIViewController, UITableViewDelegate {
 			.flatMap { _ -> Observable<[TickerModel]> in
 				return self.tickerRequest.sendRequest()
 			}
-			.bind(to: tableView.rx.items(cellIdentifier: cellIdentifier)) { row, model, cell in
+			.bind(to: tableView.rx.items(cellIdentifier: cellIdentifier)) { [weak self] row, model, cell in
+				self?.activityIndicatorView.isHidden = true
 				guard let cell = cell as? TickerCell else { return }
 				cell.delegate = self
 				cell.ticker = model
@@ -74,6 +78,18 @@ class TickersVC: UIViewController, UITableViewDelegate {
 	
 	@objc func changedOrientation(_ notification: Notification) {
 		tableView.visibleCells.forEach { ($0 as! TickerCell).setupFrames() }
+	}
+	
+	private func setupIndicator() {
+		view.addSubview(activityIndicatorView)
+		activityIndicatorView.frame = view.frame
+		activityIndicatorView.backgroundColor = .white
+		let activityIndicator = UIActivityIndicatorView()
+		activityIndicator.frame = CGRect(x: 0, y: 0, width: 150, height: 150)
+		activityIndicator.center = activityIndicatorView.center
+		activityIndicator.activityIndicatorViewStyle = .gray
+		activityIndicatorView.addSubview(activityIndicator)
+		activityIndicator.startAnimating()
 	}
 }
 
