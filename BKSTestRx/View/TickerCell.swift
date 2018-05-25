@@ -8,12 +8,18 @@
 
 import UIKit
 
+protocol TickerCellHeightDelegate: class {
+	func setHeight(_ height: CGFloat)
+}
+
 class TickerCell: UITableViewCell {
 	
 	// MARK: - Variables
-	private var ticker: TickerModel?
-	private var rowHeight: CGFloat = 88
+	weak var delegate: TickerCellHeightDelegate?
 	
+	var ticker: TickerModel?
+	
+	private let inset: CGFloat = 4
 	private let tickerNameLabel = UILabel()
 	private let lastTitleLabel = UILabel()
 	private let lastLabel = UILabel()
@@ -23,12 +29,22 @@ class TickerCell: UITableViewCell {
 	private let highestLabel = UILabel()
 	
 	// MARK: - Functions
-	func setupCellWithTicker(_ ticker: TickerModel) {
-		self.ticker = ticker
+	override func layoutIfNeeded() {
 		[tickerNameLabel, lastTitleLabel, lastLabel, changeTitleLabel, changeLabel, highestTitleLabel, highestLabel].forEach { $0.translatesAutoresizingMaskIntoConstraints = false; contentView.addSubview($0) }
 		setupLabels()
 		setupFrames()
+		let height = tickerNameLabel.bounds.height + lastTitleLabel.bounds.height + lastLabel.bounds.height + 4 * inset
+		delegate?.setHeight(height)
 	}
+	
+//	func setupCellWithTicker(_ ticker: TickerModel) {
+//		self.ticker = ticker
+//		[tickerNameLabel, lastTitleLabel, lastLabel, changeTitleLabel, changeLabel, highestTitleLabel, highestLabel].forEach { $0.translatesAutoresizingMaskIntoConstraints = false; contentView.addSubview($0) }
+//		setupLabels()
+//		setupFrames()
+//		let height = tickerNameLabel.bounds.height + lastTitleLabel.bounds.height + lastLabel.bounds.height + 4 * inset
+//		delegate?.setHeight(height)
+//	}
 	
 	// MARK: - Private Functions
 	private func setupLabels() {
@@ -41,32 +57,32 @@ class TickerCell: UITableViewCell {
 		
 		lastTitleLabel.text = "Last"
 		lastTitleLabel.textColor = .black
-		lastTitleLabel.font = UIFont(name: "Roboto-Light", size: 12)
+		lastTitleLabel.font = UIFont(name: "Roboto-Light", size: 15)
 		lastTitleLabel.textAlignment = .center
 		
 		lastLabel.text = "\(ticker.last.description)"
 		lastLabel.textColor = .black
-		lastLabel.font = UIFont(name: "Roboto-Medium", size: 12)
+		lastLabel.font = UIFont(name: "Roboto-Medium", size: 15)
 		lastLabel.textAlignment = .center
 		
 		changeTitleLabel.text = "Change"
 		changeTitleLabel.textColor = .black
-		changeTitleLabel.font = UIFont(name: "Roboto-Light", size: 12)
+		changeTitleLabel.font = UIFont(name: "Roboto-Light", size: 15)
 		changeTitleLabel.textAlignment = .center
 		
 		changeLabel.text = ticker.getPercentChange()
 		ticker.isChangePositive() ? (changeLabel.textColor = .green) : (changeLabel.textColor = .red)
-		changeLabel.font = UIFont(name: "Roboto-Medium", size: 12)
+		changeLabel.font = UIFont(name: "Roboto-Medium", size: 15)
 		changeLabel.textAlignment = .center
 		
 		highestTitleLabel.text = "Highest"
 		highestTitleLabel.textColor = .black
-		highestTitleLabel.font = UIFont(name: "Roboto-Light", size: 12)
+		highestTitleLabel.font = UIFont(name: "Roboto-Light", size: 15)
 		highestTitleLabel.textAlignment = .center
 		
 		highestLabel.text = "\(ticker.highest.description)"
 		highestLabel.textColor = .black
-		highestLabel.font = UIFont(name: "Roboto-Medium", size: 12)
+		highestLabel.font = UIFont(name: "Roboto-Medium", size: 15)
 		highestLabel.textAlignment = .center
 	}
 	
@@ -80,58 +96,78 @@ class TickerCell: UITableViewCell {
 		setHighestLabelFrame()
 	}
 	
+	private func getNameLabelSize(text: String, font: UIFont) -> CGSize {
+		let maxWidth = frame.width
+		let textBlock = CGSize(width: maxWidth, height: CGFloat.greatestFiniteMagnitude)
+		let rect = text.boundingRect(with: textBlock, options: .usesLineFragmentOrigin, attributes: [NSAttributedStringKey.font: font], context: nil)
+		let width = maxWidth
+		let height = CGFloat(rect.size.height)
+		let size = CGSize(width: ceil(width), height: ceil(height))
+		return size
+	}
+	
+	private func getIndicatorsLabelSize(text: String, font: UIFont) -> CGSize {
+		let maxWidth = frame.width / 3
+		let textBlock = CGSize(width: maxWidth, height: CGFloat.greatestFiniteMagnitude)
+		let rect = text.boundingRect(with: textBlock, options: .usesLineFragmentOrigin, attributes: [NSAttributedStringKey.font: font], context: nil)
+		let width = maxWidth
+		let height = CGFloat(rect.size.height)
+		let size = CGSize(width: ceil(width), height: ceil(height))
+		return size
+	}
+	
 	private func setTicketNameLabelFrame() {
-		let labelSize = CGSize(width: contentView.bounds.width, height: rowHeight / 2)
+		let labelSize = getNameLabelSize(text: tickerNameLabel.text!, font: tickerNameLabel.font)
 		let labelX = 0
-		let labelY = 0
-		let labelOrigin = CGPoint(x: labelX, y: labelY)
+		let labelY = inset
+		let labelOrigin = CGPoint(x: CGFloat(labelX), y: labelY)
 		tickerNameLabel.frame = CGRect(origin: labelOrigin, size: labelSize)
 	}
 	
 	private func setLastTitleLabelFrame() {
-		let labelSize = CGSize(width: contentView.bounds.width / 3, height: rowHeight / 4)
+		let labelSize = getIndicatorsLabelSize(text: lastTitleLabel.text!, font: lastTitleLabel.font)
 		let labelX = CGFloat(0)
-		let labelY = rowHeight / 2
+		let labelY = tickerNameLabel.frame.height + 2 * inset
 		let labelOrigin = CGPoint(x: labelX, y: labelY)
 		lastTitleLabel.frame = CGRect(origin: labelOrigin, size: labelSize)
 	}
 	
 	private func setLastLabelFrame() {
-		let labelSize = CGSize(width: contentView.bounds.width / 3, height: rowHeight / 4)
+		let labelSize = getIndicatorsLabelSize(text: lastLabel.text!, font: lastLabel.font)
 		let labelX = CGFloat(0)
-		let labelY = rowHeight / 2 + rowHeight / 4
+		let labelY = lastTitleLabel.frame.origin.y + lastTitleLabel.frame.height + inset
 		let labelOrigin = CGPoint(x: labelX, y: labelY)
 		lastLabel.frame = CGRect(origin: labelOrigin, size: labelSize)
 	}
 	
 	private func setChangeTitleLabelFrame() {
-		let labelSize = CGSize(width: contentView.bounds.width / 3, height: rowHeight / 4)
-		let labelX = contentView.bounds.width / 3
-		let labelY = rowHeight / 2
+		let labelSize = getIndicatorsLabelSize(text: changeTitleLabel.text!, font: changeTitleLabel.font)
+		let labelX = lastTitleLabel.frame.width
+		let labelY = tickerNameLabel.frame.height + 2 * inset
 		let labelOrigin = CGPoint(x: labelX, y: labelY)
 		changeTitleLabel.frame = CGRect(origin: labelOrigin, size: labelSize)
 	}
 	
 	private func setChangeLabelFrame() {
-		let labelSize = CGSize(width: contentView.bounds.width / 3, height: rowHeight / 4)
-		let labelX = contentView.bounds.width / 3
-		let labelY = rowHeight / 2 + rowHeight / 4
+		let labelSize = getIndicatorsLabelSize(text: changeLabel.text!, font: changeLabel.font)
+		let labelX = lastTitleLabel.frame.width
+		let labelY = changeTitleLabel.frame.origin.y + changeTitleLabel.frame.height + inset
 		let labelOrigin = CGPoint(x: labelX, y: labelY)
 		changeLabel.frame = CGRect(origin: labelOrigin, size: labelSize)
 	}
 	
 	private func setHighestTitleLabelFrame() {
-		let labelSize = CGSize(width: contentView.bounds.width / 3, height: rowHeight / 4)
-		let labelX = contentView.bounds.width / 3 * 2
-		let labelY = rowHeight / 2
+		let labelSize = getIndicatorsLabelSize(text: highestTitleLabel.text!, font: highestTitleLabel.font)
+		let labelX = changeTitleLabel.frame.width + changeTitleLabel.frame.origin.x
+		let labelY = tickerNameLabel.frame.height + 2 * inset
 		let labelOrigin = CGPoint(x: labelX, y: labelY)
 		highestTitleLabel.frame = CGRect(origin: labelOrigin, size: labelSize)
 	}
 	
 	private func setHighestLabelFrame() {
-		let labelSize = CGSize(width: contentView.bounds.width / 3, height: rowHeight / 4)
-		let labelX = contentView.bounds.width / 3 * 2
-		let labelY = rowHeight / 2 + rowHeight / 4
+		let labelSize = getIndicatorsLabelSize(text: highestLabel.text!, font: highestLabel.font)
+		let labelX = changeTitleLabel.frame.width + changeTitleLabel.frame.origin.x
+		let labelY = highestTitleLabel.frame.origin.y + highestTitleLabel.frame.height + inset
 		let labelOrigin = CGPoint(x: labelX, y: labelY)
 		highestLabel.frame = CGRect(origin: labelOrigin, size: labelSize)
 	}

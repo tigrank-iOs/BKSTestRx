@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		C25CFE9E20B7F9D9006B5E47 /* TickerRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25CFE9D20B7F9D9006B5E47 /* TickerRequest.swift */; };
+		C25CFE9F20B83E03006B5E47 /* Roboto-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C26C915220B7EEB10070817F /* Roboto-Bold.ttf */; };
+		C25CFEA020B83E03006B5E47 /* Roboto-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C26C915320B7EEB10070817F /* Roboto-Light.ttf */; };
+		C25CFEA120B83E03006B5E47 /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C26C915420B7EEB10070817F /* Roboto-Medium.ttf */; };
 		C26C913220B733250070817F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C26C913120B733250070817F /* AppDelegate.swift */; };
 		C26C913420B733260070817F /* TickersVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C26C913320B733260070817F /* TickersVC.swift */; };
 		C26C913920B733280070817F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C26C913820B733280070817F /* Assets.xcassets */; };
@@ -206,6 +209,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C25CFE9F20B83E03006B5E47 /* Roboto-Bold.ttf in Resources */,
+				C25CFEA020B83E03006B5E47 /* Roboto-Light.ttf in Resources */,
+				C25CFEA120B83E03006B5E47 /* Roboto-Medium.ttf in Resources */,
 				C26C913C20B733280070817F /* LaunchScreen.storyboard in Resources */,
 				C26C913920B733280070817F /* Assets.xcassets in Resources */,
 			);

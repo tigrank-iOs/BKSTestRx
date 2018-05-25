@@ -25,15 +25,14 @@ class TickersVC: UIViewController, UITableViewDelegate {
 		view.backgroundColor = UIColor.white
 		self.title = "Котировки"
 		
-		tableView.register(TickerCell.self, forCellReuseIdentifier: cellIdentifier)
 		configureLayout()
+		tableView.register(TickerCell.self, forCellReuseIdentifier: cellIdentifier)
 		
-		tableView.delegate = self
+		tableView.rx.setDelegate(self).disposed(by: disposeBag)
 		tableView.allowsSelection = false
-		tableView.rowHeight = 88
+		tableView.rowHeight = 74
 		
 		isRunning.asObservable()
-			.debug("isRunning")
 			.flatMapLatest { isRunning in
 				isRunning ? Observable<Int>.timer(0, period: 5, scheduler: MainScheduler.instance) : .empty()
 			}
@@ -43,7 +42,8 @@ class TickersVC: UIViewController, UITableViewDelegate {
 			}
 			.bind(to: tableView.rx.items(cellIdentifier: cellIdentifier)) { row, model, cell in
 				guard let cell = cell as? TickerCell else { return }
-				cell.setupCellWithTicker(model)
+				cell.delegate = self
+				cell.ticker = model
 			}
 			.disposed(by: disposeBag)
 		
@@ -74,6 +74,14 @@ class TickersVC: UIViewController, UITableViewDelegate {
 	
 	@objc func changedOrientation(_ notification: Notification) {
 		tableView.visibleCells.forEach { ($0 as! TickerCell).setupFrames() }
+	}
+}
+
+extension TickersVC: TickerCellHeightDelegate {
+	
+	// MARK: - TickerCellHeightDelegate
+	func setHeight(_ height: CGFloat) {
+		tableView.rowHeight = height
 	}
 }
 
